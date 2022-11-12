@@ -1,12 +1,26 @@
-import isEqual from 'lodash.isequal'
+import { isEqual, cloneDeep, isPlainObject, set, get } from 'lodash'
 import useRemember from './useRemember'
 import { Inertia } from '@inertiajs/inertia'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+const fillEmptyValues = (data) => {
+  const sanitizedDefaultData = cloneDeep(data)
+
+  for(const key in sanitizedDefaultData) {
+    if(isPlainObject(sanitizedDefaultData[key])) {
+      sanitizedDefaultData[key] = fillEmptyValues(sanitizedDefaultData[key])
+    } else if(sanitizedDefaultData[key] === undefined || sanitizedDefaultData[key] === null) {
+      sanitizedDefaultData[key] = ''
+    }
+  }
+
+  return sanitizedDefaultData
+}
+
 export default function useForm(...args) {
   const isMounted = useRef(null)
   const rememberKey = typeof args[0] === 'string' ? args[0] : null
-  const [defaults, setDefaults] = useState((typeof args[0] === 'string' ? args[1] : args[0]) || {})
+  const [defaults, setDefaults] = useState(fillEmptyValues(typeof args[0] === 'string' ? args[1] : args[0]) || {})
   const cancelToken = useRef(null)
   const recentlySuccessfulTimeoutId = useRef(null)
   const [data, setData] = rememberKey ? useRemember(defaults, `${rememberKey}:data`) : useState(defaults)
@@ -127,13 +141,14 @@ export default function useForm(...args) {
     data,
     setData(key, value) {
       if (typeof key === 'string') {
-        setData({ ...data, [key]: value })
+        setData(data => set(data, key, value))
       } else if (typeof key === 'function') {
         setData(data => key(data))
       } else {
         setData(key)
       }
     },
+    getData: path => get(data, path),
     isDirty: !isEqual(data, defaults),
     errors,
     hasErrors,

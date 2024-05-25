@@ -102,6 +102,11 @@ export default function useForm<TForm extends FormDataType>(
             return options.onProgress(event)
           }
         },
+        onBeforeLeave: () => {
+          if (options.onBeforeLeave) {
+            return options.onBeforeLeave()
+          }
+        },
         onSuccess: (page) => {
           if (isMounted.current) {
             setProcessing(false)

@@ -176,6 +176,7 @@ export type VisitOptions = Partial<
     onCancel: GlobalEventCallback<'cancel'>
     onSuccess: GlobalEventCallback<'success'>
     onError: GlobalEventCallback<'error'>
+    onBeforeLeave: VoidFunction,
   }
 >
 

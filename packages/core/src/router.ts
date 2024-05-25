@@ -271,6 +271,7 @@ export class Router {
       onProgress = () => {},
       onFinish = () => {},
       onCancel = () => {},
+      onBeforeLeave = () => {},
       onSuccess = () => {},
       onError = () => {},
       queryStringArrayFormat = 'brackets',
@@ -325,6 +326,7 @@ export class Router {
       onProgress,
       onFinish,
       onCancel,
+      onBeforeLeave,
       onSuccess,
       onError,
       queryStringArrayFormat,
@@ -381,7 +383,7 @@ export class Router {
         }
       },
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!this.isInertiaResponse(response)) {
           return Promise.reject({ response })
         }
@@ -403,6 +405,7 @@ export class Router {
           responseUrl.hash = requestUrl.hash
           pageResponse.url = responseUrl.href
         }
+        await onBeforeLeave()
         return this.setPage(pageResponse, { visitId, replace, preserveScroll, preserveState })
       })
       .then(() => {

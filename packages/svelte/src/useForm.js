@@ -121,6 +121,11 @@ function useForm(...args) {
             return options.onProgress(event)
           }
         },
+        onBeforeLeave: () => {
+          if (options.onBeforeLeave) {
+            return options.onBeforeLeave()
+          }
+        },
         onSuccess: async (page) => {
           this.setStore('processing', false)
           this.setStore('progress', null)

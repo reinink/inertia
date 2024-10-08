@@ -578,7 +578,12 @@ describe('Events', () => {
           assertExceptionObject(event.detail)
         }
 
-        cy.get('.exception')
+        cy
+          .on('uncaught:exception', (e) => {
+            const valid = e.name === 'AxiosError'
+            return !valid
+          })
+          .get('.exception')
           .click()
           .wait(2000) // The browser will 'wait' for a bit when the connection has been dropped server-side.
           .then(() => {

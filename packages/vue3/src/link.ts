@@ -1,15 +1,23 @@
-import { mergeDataIntoQueryString, Method, PageProps, Progress, router, shouldIntercept } from '@inertiajs/core'
+import {
+  FormDataConvertible,
+  mergeDataIntoQueryString,
+  Method,
+  PreserveStateOption,
+  Progress,
+  router,
+  shouldIntercept
+} from '@inertiajs/core'
 import { defineComponent, DefineComponent, h, PropType } from 'vue'
 
 export interface InertiaLinkProps {
   as?: string
-  data?: object
+  data?: Record<string, FormDataConvertible>
   href: string
   method?: Method
-  headers?: object
+  headers?: Record<string, string>
   onClick?: (event: MouseEvent) => void
-  preserveScroll?: boolean | ((props: PageProps) => boolean)
-  preserveState?: boolean | ((props: PageProps) => boolean) | null
+  preserveScroll?: PreserveStateOption
+  preserveState?: PreserveStateOption
   replace?: boolean
   only?: string[]
   except?: string[]

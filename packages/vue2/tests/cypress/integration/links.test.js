@@ -537,14 +537,14 @@ describe('Links', () => {
 
   describe('Replace', () => {
     beforeEach(() => {
-      cy.visit('/', {
-        onLoad: () =>
-          cy.on('window:load', () => {
-            throw 'A location/non-SPA visit was detected'
-          }),
-      })
+      cy.visit('/')
+      cy.window().then((window) => (window._inertia_spa_page_load = true))
       cy.get('.links-replace').click()
       cy.url().should('eq', Cypress.config().baseUrl + '/links/replace')
+    })
+
+    afterEach(() => {
+      cy.window().should('have.prop', '_inertia_spa_page_load')
     })
 
     it('replaces the current history state', () => {

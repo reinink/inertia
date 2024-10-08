@@ -1,4 +1,3 @@
-import 'cypress-fail-fast'
 // ***********************************************************
 // This example support/index.js is processed and
 // loaded automatically before your test files.
@@ -16,6 +15,7 @@ import 'cypress-fail-fast'
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+import 'cypress-fail-fast'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

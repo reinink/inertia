@@ -20,7 +20,6 @@
     "noUnusedParameters": true,
     "preserveConstEnums": true,
     "removeComments": false,
-    "typeRoots": ["./node_modules/@types"],
     "strict": true
   }
 }

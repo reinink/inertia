@@ -20,8 +20,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "preserveConstEnums": true,
-    "removeComments": true,
-    "typeRoots": ["./node_modules/@types"]
+    "removeComments": true
     // "strict": true
   }
 }

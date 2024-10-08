@@ -9,19 +9,19 @@
     "test:gui": "npm run gui"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue2": "^2.2.0",
-    "body-parser": "^1.19.0",
-    "css-loader": "^5.0.1",
-    "cypress": "^6.2.1",
-    "cypress-fail-fast": "^2.3.1",
-    "cypress-repeat": "^2.2.1",
-    "eslint": "^7.17.0",
-    "eslint-plugin-cypress": "^2.11.2",
-    "express": "^4.17.1",
-    "multer": "^1.4.2",
-    "start-server-and-test": "^1.11.5",
-    "vite": "^4.0.4",
-    "vue": "^2.7.14"
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "body-parser": "^1.20.3",
+    "css-loader": "^7.1.2",
+    "cypress": "^13.14.2",
+    "cypress-fail-fast": "^7.1.1",
+    "cypress-repeat": "^2.3.7",
+    "eslint": "^9.11.1",
+    "eslint-plugin-cypress": "^3.5.0",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "start-server-and-test": "^2.0.8",
+    "vite": "^5.4.8",
+    "vue": "^2.7.16"
   },
   "dependencies": {
     "@inertiajs/core": "file:../../core",

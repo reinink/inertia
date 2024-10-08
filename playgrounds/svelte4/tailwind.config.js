@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: ['./resources/**/*.blade.php', './resources/**/*.svelte'],
   theme: {
     extend: {},

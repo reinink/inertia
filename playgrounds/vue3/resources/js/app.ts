@@ -5,7 +5,7 @@ createInertiaApp({
   title: (title) => `${title} - Vue 3 Playground`,
   resolve: (name) => {
     const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
-    return pages[`./Pages/${name}.vue`] as DefineComponent
+    return pages[`./Pages/${name}.vue`] as Promise<DefineComponent>
   },
   setup({ el, App, props, plugin }) {
     createSSRApp({ render: () => h(App, props) })

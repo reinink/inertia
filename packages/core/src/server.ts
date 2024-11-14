@@ -1,17 +1,11 @@
 import { createServer, IncomingMessage } from 'http'
 import * as process from 'process'
-import { InertiaAppResponse, Page } from './types'
+import { readableToString } from './serverUtils'
+import type { InertiaAppResponse, Page } from './types'
 
-type AppCallback = (page: Page) => InertiaAppResponse
+export type AppCallback = (page: Page) => InertiaAppResponse
+
 type RouteHandler = (request: IncomingMessage) => Promise<unknown>
-
-const readableToString: (readable: IncomingMessage) => Promise<string> = (readable) =>
-  new Promise((resolve, reject) => {
-    let data = ''
-    readable.on('data', (chunk) => (data += chunk))
-    readable.on('end', () => resolve(data))
-    readable.on('error', (err) => reject(err))
-  })
 
 export default (render: AppCallback, port?: number): void => {
   const _port = port || 13714

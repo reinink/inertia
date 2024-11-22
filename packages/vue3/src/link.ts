@@ -36,6 +36,7 @@ export interface InertiaLinkProps {
   async?: boolean
   prefetch?: boolean | LinkPrefetchOption | LinkPrefetchOption[]
   cacheFor?: CacheForOption | CacheForOption[]
+  disabled?: boolean
 }
 
 type InertiaLink = DefineComponent<InertiaLinkProps>
@@ -132,6 +133,10 @@ const Link: InertiaLink = defineComponent({
       type: Function as PropType<(cancelToken: import('axios').CancelTokenSource) => void>,
       default: () => {},
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, { slots, attrs }) {
     const inFlightCount = ref(0)
@@ -185,7 +190,7 @@ const Link: InertiaLink = defineComponent({
 
     const elProps = {
       a: { href },
-      button: { type: 'button' },
+      button: { type: 'button', disabled: props.disabled },
     }
 
     const baseParams = {
@@ -219,14 +224,18 @@ const Link: InertiaLink = defineComponent({
     }
 
     const prefetch = () => {
-      router.prefetch(href, baseParams, { cacheFor: cacheForValue })
+      if (!props.disabled) {
+        router.prefetch(href, baseParams, { cacheFor: cacheForValue })
+      }
     }
 
     const regularEvents = {
       onClick: (event) => {
         if (shouldIntercept(event)) {
           event.preventDefault()
-          router.visit(href, visitParams)
+          if (!props.disabled) {
+            router.visit(href, visitParams)
+          }
         }
       },
     }
@@ -252,7 +261,9 @@ const Link: InertiaLink = defineComponent({
       },
       onMouseup: (event) => {
         event.preventDefault()
-        router.visit(href, visitParams)
+        if (!props.disabled) {
+          router.visit(href, visitParams)
+        }
       },
       onClick: (event) => {
         if (shouldIntercept(event)) {

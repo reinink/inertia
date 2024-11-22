@@ -73,6 +73,8 @@ app.get('/links/headers/version', (req, res) =>
 )
 app.get('/links/data-loading', (req, res) => inertia.render(req, res, { component: 'Links/DataLoading' }))
 
+app.get('/links/disabled', (req, res) => inertia.render(req, res, { component: 'Links/Disabled' }))
+
 app.get('/visits/partial-reloads', (req, res) =>
   inertia.render(req, res, {
     component: 'Visits/PartialReloads',

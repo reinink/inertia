@@ -1,4 +1,4 @@
-import { default as Axios, AxiosResponse } from 'axios'
+import { default as GlobalAxiosInstance,  AxiosResponse } from 'axios'
 import debounce from './debounce'
 import {
   fireBeforeEvent,
@@ -32,6 +32,8 @@ import {
 import { hrefToUrl, mergeDataIntoQueryString, urlWithoutHash } from './url'
 
 const isServer = typeof window === 'undefined'
+
+const AxiosInstance = GlobalAxiosInstance.create();
 
 export class Router {
   protected page!: Page
@@ -343,7 +345,7 @@ export class Router {
 
     const isPartial = !!(only.length || except.length)
 
-    Axios({
+    AxiosInstance({
       method,
       url: urlWithoutHash(url).href,
       data: method === 'get' ? {} : data,
@@ -436,7 +438,7 @@ export class Router {
         }
       })
       .catch((error) => {
-        if (!Axios.isCancel(error)) {
+        if (!GlobalAxiosInstance.isCancel(error)) {
           const throwException = fireExceptionEvent(error)
           if (this.activeVisit) {
             this.finishVisit(this.activeVisit)

@@ -1,3 +1,4 @@
+import inertia from '@inertiajs/core/vite'
 import vue from '@vitejs/plugin-vue'
 import laravel from 'laravel-vite-plugin'
 import { defineConfig } from 'vite'
@@ -9,6 +10,7 @@ export default defineConfig({
       ssr: 'resources/js/ssr.ts',
       refresh: true,
     }),
+    inertia('resources/js/viteSsr.ts'),
     vue({
       template: {
         transformAssetUrls: {

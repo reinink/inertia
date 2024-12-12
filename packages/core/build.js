@@ -17,6 +17,7 @@ const builds = [
   { entryPoints: ['src/index.ts'], format: 'cjs', outfile: 'dist/index.js', platform: 'browser' },
   { entryPoints: ['src/server.ts'], format: 'esm', outfile: 'dist/server.esm.js', platform: 'node' },
   { entryPoints: ['src/server.ts'], format: 'cjs', outfile: 'dist/server.js', platform: 'node' },
+  { entryPoints: ['src/vite.ts'], format: 'esm', outfile: 'dist/vite.js', platform: 'node' },
 ]
 
 builds.forEach((build) => {

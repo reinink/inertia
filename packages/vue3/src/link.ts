@@ -1,8 +1,8 @@
 import { mergeDataIntoQueryString, Method, PageProps, Progress, router, shouldIntercept } from '@inertiajs/core'
-import { defineComponent, DefineComponent, h, PropType } from 'vue'
+import { Component, defineComponent, DefineComponent, h, onMounted, PropType, ref } from 'vue'
 
 export interface InertiaLinkProps {
-  as?: string
+  as?: string | Component
   data?: object
   href: string
   method?: Method
@@ -29,7 +29,7 @@ const Link: InertiaLink = defineComponent({
   name: 'Link',
   props: {
     as: {
-      type: String,
+      type: [String, Object] as PropType<string | Component>,
       default: 'a',
     },
     data: {
@@ -74,12 +74,27 @@ const Link: InertiaLink = defineComponent({
     },
   },
   setup(props, { slots, attrs }) {
+    const internalRef = ref(null)
+
+    onMounted(() => {
+      if (!internalRef.value) {
+        return
+      }
+
+      const element = internalRef.value.$el
+
+      if (element.tagName !== 'A') {
+        element.removeAttribute('href')
+      }
+    })
+
     return () => {
-      const as = props.as.toLowerCase()
+      const isAnchor = props.as === 'a' || props.as === 'A'
+      const isCustomComponent = typeof props.as !== 'string'
       const method = props.method.toLowerCase() as Method
       const [href, data] = mergeDataIntoQueryString(method, props.href || '', props.data, props.queryStringArrayFormat)
 
-      if (as === 'a' && method !== 'get') {
+      if (isAnchor && method !== 'get') {
         console.warn(
           `Creating POST/PUT/PATCH/DELETE <a> links is discouraged as it causes "Open Link in New Tab/Window" accessibility issues.\n\nPlease specify a more appropriate element using the "as" attribute. For example:\n\n<Link href="${href}" method="${method}" as="button">...</Link>`,
         )
@@ -89,7 +104,8 @@ const Link: InertiaLink = defineComponent({
         props.as,
         {
           ...attrs,
-          ...(as === 'a' ? { href } : {}),
+          ...(isAnchor || isCustomComponent ? { href } : {}),
+          ...(isCustomComponent ? { ref: internalRef } : {}),
           onClick: (event) => {
             if (shouldIntercept(event)) {
               event.preventDefault()

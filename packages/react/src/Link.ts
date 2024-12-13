@@ -5,6 +5,7 @@ import {
   PreserveStateOption,
   Progress,
   router,
+  SerializationArrayFormat,
   shouldIntercept,
 } from '@inertiajs/core'
 import { createElement, forwardRef, useCallback } from 'react'
@@ -31,7 +32,8 @@ interface BaseInertiaLinkProps {
   onCancel?: () => void
   onSuccess?: () => void
   onError?: () => void
-  queryStringArrayFormat?: 'indices' | 'brackets'
+  queryStringArrayFormat?: SerializationArrayFormat
+  formDataArrayFormat?: SerializationArrayFormat
 }
 
 export type InertiaLinkProps = BaseInertiaLinkProps &
@@ -53,6 +55,7 @@ const Link = forwardRef<unknown, InertiaLinkProps>(
       except = [],
       headers = {},
       queryStringArrayFormat = 'brackets',
+      formDataArrayFormat = 'indices',
       onClick = noop,
       onCancelToken = noop,
       onBefore = noop,
@@ -82,6 +85,7 @@ const Link = forwardRef<unknown, InertiaLinkProps>(
             only,
             except,
             headers,
+            formDataArrayFormat,
             onCancelToken,
             onBefore,
             onStart,

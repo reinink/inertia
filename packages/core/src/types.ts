@@ -63,6 +63,8 @@ export type LocationVisit = {
   preserveScroll: boolean
 }
 
+export type SerializationArrayFormat = 'indices' | 'brackets'
+
 export type Visit = {
   method: Method
   data: RequestPayload
@@ -74,7 +76,8 @@ export type Visit = {
   headers: Record<string, string>
   errorBag: string | null
   forceFormData: boolean
-  queryStringArrayFormat: 'indices' | 'brackets'
+  queryStringArrayFormat: SerializationArrayFormat
+  formDataArrayFormat: SerializationArrayFormat
 }
 
 export type GlobalEventsMap = {

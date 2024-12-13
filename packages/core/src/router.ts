@@ -286,12 +286,13 @@ export class Router {
       onSuccess = () => {},
       onError = () => {},
       queryStringArrayFormat = 'brackets',
+      formDataArrayFormat = 'indices',
     }: VisitOptions = {},
   ): void {
     let url = typeof href === 'string' ? hrefToUrl(href) : href
 
     if ((hasFiles(data) || forceFormData) && !(data instanceof FormData)) {
-      data = objectToFormData(data)
+      data = objectToFormData(data, new FormData(), null, formDataArrayFormat)
     }
 
     if (!(data instanceof FormData)) {
@@ -313,6 +314,7 @@ export class Router {
       errorBag,
       forceFormData,
       queryStringArrayFormat,
+      formDataArrayFormat,
       cancelled: false,
       completed: false,
       interrupted: false,
@@ -340,6 +342,7 @@ export class Router {
       onSuccess,
       onError,
       queryStringArrayFormat,
+      formDataArrayFormat,
       cancelToken: new AbortController(),
     }
 

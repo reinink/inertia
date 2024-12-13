@@ -5,6 +5,7 @@ import {
   PreserveStateOption,
   Progress,
   router,
+  SerializationArrayFormat,
   shouldIntercept,
 } from '@inertiajs/core'
 import { FunctionalComponentOptions, PropType } from 'vue'
@@ -28,7 +29,8 @@ export interface InertiaLinkProps {
   onFinish?: () => void
   onCancel?: () => void
   onSuccess?: () => void
-  queryStringArrayFormat?: 'brackets' | 'indices'
+  queryStringArrayFormat?: SerializationArrayFormat
+  formDataArrayFormat?: SerializationArrayFormat
 }
 
 type InertiaLink = FunctionalComponentOptions<InertiaLinkProps>
@@ -76,8 +78,12 @@ const Link: InertiaLink = {
       default: () => ({}),
     },
     queryStringArrayFormat: {
-      type: String as PropType<'brackets' | 'indices'>,
+      type: String as PropType<SerializationArrayFormat>,
       default: 'brackets',
+    },
+    formDataArrayFormat: {
+      type: String as PropType<SerializationArrayFormat>,
+      default: 'indices',
     },
   },
   render(h, { props, data, children }) {
@@ -134,6 +140,7 @@ const Link: InertiaLink = {
                 only: props.only,
                 except: props.except,
                 headers: props.headers,
+                formDataArrayFormat: props.formDataArrayFormat,
                 // @ts-expect-error
                 onCancelToken: data.on.cancelToken,
                 // @ts-expect-error

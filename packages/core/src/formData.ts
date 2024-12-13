@@ -1,28 +1,47 @@
-import { FormDataConvertible } from './types'
+import { FormDataConvertible, SerializationArrayFormat } from './types'
 
 export function objectToFormData(
   source: Record<string, FormDataConvertible>,
-  form: FormData = new FormData(),
-  parentKey: string | null = null,
+  form: FormData,
+  parentKey: string | null,
+  formDataArrayFormat: SerializationArrayFormat,
 ): FormData {
   source = source || {}
 
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
-      append(form, composeKey(parentKey, key), source[key])
+      append(form, composeObjectKey(parentKey, key), source[key], formDataArrayFormat)
     }
   }
 
   return form
 }
 
-function composeKey(parent: string | null, key: string): string {
-  return parent ? parent + '[' + key + ']' : key
+function composeKey(parent: string | null, key: string, format: SerializationArrayFormat): string {
+  if (!parent) return key
+
+  switch (format) {
+    case 'indices':
+      return `${parent}[${key}]`
+    case 'brackets':
+      return `${parent}[]`
+  }
 }
 
-function append(form: FormData, key: string, value: FormDataConvertible): void {
+function composeObjectKey(parent: string | null, key: string): string {
+  return composeKey(parent, key, 'indices')
+}
+
+function append(
+  form: FormData,
+  key: string,
+  value: FormDataConvertible,
+  formDataArrayFormat: SerializationArrayFormat,
+): void {
   if (Array.isArray(value)) {
-    return Array.from(value.keys()).forEach((index) => append(form, composeKey(key, index.toString()), value[index]))
+    return Array.from(value.keys()).forEach((index) =>
+      append(form, composeKey(key, index.toString(), formDataArrayFormat), value[index], formDataArrayFormat),
+    )
   } else if (value instanceof Date) {
     return form.append(key, value.toISOString())
   } else if (value instanceof File) {
@@ -39,5 +58,5 @@ function append(form: FormData, key: string, value: FormDataConvertible): void {
     return form.append(key, '')
   }
 
-  objectToFormData(value, form, key)
+  objectToFormData(value, form, key, formDataArrayFormat)
 }

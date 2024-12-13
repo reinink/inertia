@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { FormDataConvertible, Method, PreserveStateOption } from '@inertiajs/core'
+  import type { FormDataConvertible, Method, PreserveStateOption, SerializationArrayFormat } from '@inertiajs/core'
   import { inertia } from '../index'
 
   export let href: string
@@ -12,7 +12,8 @@
   export let only: string[] = []
   export let except: string[] = []
   export let headers: Record<string, string> = {}
-  export let queryStringArrayFormat: 'brackets' | 'indices' = 'brackets'
+  export let queryStringArrayFormat: SerializationArrayFormat = 'brackets'
+  export let formDataArrayFormat: SerializationArrayFormat = 'indices'
 
   $: asProp = method !== 'get' ? 'button' : as.toLowerCase()
   $: elProps =
@@ -36,6 +37,7 @@
     except,
     headers,
     queryStringArrayFormat,
+    formDataArrayFormat,
   }}
   {...$$restProps}
   {...elProps}

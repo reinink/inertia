@@ -1,4 +1,12 @@
-import { mergeDataIntoQueryString, Method, PageProps, Progress, router, shouldIntercept } from '@inertiajs/core'
+import {
+  mergeDataIntoQueryString,
+  Method,
+  PageProps,
+  Progress,
+  router,
+  SerializationArrayFormat,
+  shouldIntercept,
+} from '@inertiajs/core'
 import { defineComponent, DefineComponent, h, PropType } from 'vue'
 
 export interface InertiaLinkProps {
@@ -20,7 +28,8 @@ export interface InertiaLinkProps {
   onFinish?: () => void
   onCancel?: () => void
   onSuccess?: () => void
-  queryStringArrayFormat?: 'brackets' | 'indices'
+  queryStringArrayFormat?: SerializationArrayFormat
+  formDataArrayFormat?: SerializationArrayFormat
 }
 
 type InertiaLink = DefineComponent<InertiaLinkProps>
@@ -69,8 +78,12 @@ const Link: InertiaLink = defineComponent({
       default: () => ({}),
     },
     queryStringArrayFormat: {
-      type: String as PropType<'brackets' | 'indices'>,
+      type: String as PropType<SerializationArrayFormat>,
       default: 'brackets',
+    },
+    formDataArrayFormat: {
+      type: String as PropType<SerializationArrayFormat>,
+      default: 'indices',
     },
   },
   setup(props, { slots, attrs }) {
@@ -103,6 +116,7 @@ const Link: InertiaLink = defineComponent({
                 only: props.only,
                 except: props.except,
                 headers: props.headers,
+                formDataArrayFormat: props.formDataArrayFormat,
                 // @ts-expect-error
                 onCancelToken: attrs.onCancelToken || (() => ({})),
                 // @ts-expect-error

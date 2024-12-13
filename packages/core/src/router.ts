@@ -33,6 +33,8 @@ import { hrefToUrl, mergeDataIntoQueryString, urlWithoutHash } from './url'
 
 const isServer = typeof window === 'undefined'
 const isChromeIOS = !isServer && /CriOS/.test(window.navigator.userAgent)
+const allStateIdsSessionStorageKey = 'inertia_state_ids';
+const sessionUsageKey = 'inertia_session_usage';
 const nextFrame = (callback: () => void) => {
   requestAnimationFrame(() => {
     requestAnimationFrame(callback)
@@ -84,8 +86,10 @@ export class Router {
   }
 
   protected clearRememberedStateOnReload(): void {
-    if (this.navigationType === 'reload' && window.history.state?.rememberedState) {
-      delete window.history.state.rememberedState
+    const historyState = this.getHistoryState() as Omit<Page, 'rememberedState'> & { rememberedState ?: Record<string, unknown> };
+    if (this.navigationType === 'reload' && historyState?.rememberedState) {
+        delete historyState.rememberedState;
+        this.replaceState(historyState as Page);
     }
   }
 
@@ -164,15 +168,26 @@ export class Router {
   }
 
   protected isBackForwardVisit(): boolean {
-    return window.history.state && this.navigationType === 'back_forward'
+    return this.getHistoryState() !== null && this.navigationType === 'back_forward'
   }
 
   protected handleBackForwardVisit(page: Page): void {
-    window.history.state.version = page.version
-    this.setPage(window.history.state, { preserveScroll: true, preserveState: true }).then(() => {
+    const historyState = this.getHistoryState();
+    historyState && this.setPage({ ...historyState, version: page.version }, { preserveScroll: true, preserveState: true }).then(() => {
       this.restoreScrollPositions()
       fireNavigateEvent(page)
     })
+  }
+
+  protected getHistoryState(stateId: string|null = null): Page | null {
+    const currentId: string|undefined = stateId ?? window.history.state?._id;
+    if (currentId) {
+      const currentState = window.sessionStorage.getItem(currentId);
+      if (currentState) {
+        return JSON.parse(currentState);
+      }
+    }
+    return null;
   }
 
   protected locationVisit(url: URL, preserveScroll: LocationVisit['preserveScroll']): boolean | void {
@@ -200,8 +215,8 @@ export class Router {
     const locationVisit: LocationVisit = JSON.parse(window.sessionStorage.getItem('inertiaLocationVisit') || '')
     window.sessionStorage.removeItem('inertiaLocationVisit')
     page.url += window.location.hash
-    page.rememberedState = window.history.state?.rememberedState ?? {}
-    page.scrollRegions = window.history.state?.scrollRegions ?? []
+    page.rememberedState = this.getHistoryState()?.rememberedState ?? {}
+    page.scrollRegions = this.getHistoryState()?.scrollRegions ?? []
     this.setPage(page, { preserveScroll: locationVisit.preserveScroll, preserveState: true }).then(() => {
       if (locationVisit.preserveScroll) {
         this.restoreScrollPositions()
@@ -404,8 +419,9 @@ export class Router {
         }
         preserveScroll = this.resolvePreserveOption(preserveScroll, pageResponse) as boolean
         preserveState = this.resolvePreserveOption(preserveState, pageResponse)
-        if (preserveState && window.history.state?.rememberedState && pageResponse.component === this.page.component) {
-          pageResponse.rememberedState = window.history.state.rememberedState
+        const historyState = this.getHistoryState();
+        if (preserveState && historyState?.rememberedState && pageResponse.component === this.page.component) {
+          pageResponse.rememberedState = historyState.rememberedState;
         }
         const requestUrl = url
         const responseUrl = hrefToUrl(pageResponse.url)
@@ -492,15 +508,76 @@ export class Router {
     })
   }
 
+  private _pushState(page: Page): void {
+    const uniqueId = this.getStateId();
+    this.dropOldestStateItemToPreventQuotaExceeded();
+    const serializedPage = JSON.stringify(page);
+    window.sessionStorage.setItem(uniqueId, serializedPage);
+    window.history.pushState({_id: uniqueId}, '', page.url);
+    this.setSessionUsage(this.getSessionUsage() + (new Blob([serializedPage])).size);
+  }
+
+  protected getAllStateIds(): string[] {
+    return JSON.parse(window.sessionStorage.getItem(allStateIdsSessionStorageKey) ?? '[]');
+  }
+
+  protected getSessionUsage(): number
+  {
+    return parseInt(window.sessionStorage.getItem(sessionUsageKey) ?? '0');
+  }
+
+  protected setSessionUsage(usage: number): void
+  {
+    window.sessionStorage.setItem(sessionUsageKey, usage.toString())
+  }
+
+  protected dropOldestStateItemToPreventQuotaExceeded() {
+    // Ensures inertia uses at most ~1M (+/- size of 1 Page) of session storage for history state
+    const sessionUsage = this.getSessionUsage();
+    if (sessionUsage > 1000000) {
+      const allStateIds = this.getAllStateIds();
+      const oldestStateId = allStateIds.shift();
+      if (oldestStateId) {
+        const sizeOfStateItem = new Blob([window.sessionStorage.getItem(oldestStateId) ?? '']).size;
+        window.sessionStorage.removeItem(oldestStateId);
+        window.sessionStorage.setItem(allStateIdsSessionStorageKey, JSON.stringify(allStateIds));
+        this.setSessionUsage(sessionUsage - sizeOfStateItem);
+      }
+    }
+  }
+
+  private getStateId() {
+    const newId = `inertia_${Date.now() + Math.floor(Math.random() * 1000)}`;
+    window.sessionStorage.setItem(allStateIdsSessionStorageKey, JSON.stringify([...this.getAllStateIds(), newId]));
+    return newId;
+  }
+
+  public clearHistory(): void {
+    this.getAllStateIds().forEach((id) => {
+      window.sessionStorage.removeItem(id);
+    });
+    window.sessionStorage.removeItem(allStateIdsSessionStorageKey);
+    this.setSessionUsage(0);
+  }
+
   protected pushState(page: Page): void {
     this.page = page
     if (isChromeIOS) {
       // Defer history.pushState to the next event loop tick to prevent timing conflicts.
       // Ensure any previous history.replaceState completes before pushState is executed.
-      setTimeout(() => window.history.pushState(page, '', page.url))
+      setTimeout(() => this._pushState(page));
     } else {
-      window.history.pushState(page, '', page.url)
+      this._pushState(page);
     }
+  }
+
+  private _replaceState(page: Page): void {
+    const currentId = window.history.state?._id ?? this.getStateId();
+    const serializedPage = JSON.stringify(page);
+    this.setSessionUsage(this.getSessionUsage() - (new Blob([window.sessionStorage.getItem(currentId) ?? ''])).size);
+    window.sessionStorage.setItem(currentId, serializedPage);
+    window.history.replaceState({_id: currentId}, '', page.url);
+    this.setSessionUsage(this.getSessionUsage() + (new Blob([serializedPage])).size);
   }
 
   protected replaceState(page: Page): void {
@@ -508,25 +585,29 @@ export class Router {
     if (isChromeIOS) {
       // Defer history.replaceState to the next event loop tick to prevent timing conflicts.
       // Ensure any previous history.pushState completes before replaceState is executed.
-      setTimeout(() => window.history.replaceState(page, '', page.url))
+      setTimeout(() => this._replaceState(page));
     } else {
-      window.history.replaceState(page, '', page.url)
+      this._replaceState(page);
     }
   }
 
   protected handlePopstateEvent(event: PopStateEvent): void {
     if (event.state !== null) {
-      const page = event.state
-      const visitId = this.createVisitId()
-      Promise.resolve(this.resolveComponent(page.component)).then((component) => {
-        if (visitId === this.visitId) {
-          this.page = page
-          this.swapComponent({ component, page, preserveState: false }).then(() => {
-            this.restoreScrollPositions()
-            fireNavigateEvent(page)
-          })
-        }
-      })
+      const page = this.getHistoryState(event.state?._id);
+      if (page !== null) {
+        const visitId = this.createVisitId()
+        Promise.resolve(this.resolveComponent(page.component)).then((component) => {
+          if (visitId === this.visitId) {
+            this.page = page
+            this.swapComponent({ component, page, preserveState: false }).then(() => {
+              this.restoreScrollPositions()
+              fireNavigateEvent(page)
+            })
+          }
+        })
+      } else {
+        this.reload();
+      }
     } else {
       const url = hrefToUrl(this.page.url)
       url.hash = window.location.hash
@@ -591,7 +672,7 @@ export class Router {
       return
     }
 
-    return window.history.state?.rememberedState?.[key]
+    return this.getHistoryState()?.rememberedState?.[key]
   }
 
   public on<TEventName extends GlobalEventNames>(

@@ -5,6 +5,7 @@ import {
   fireErrorEvent,
   fireExceptionEvent,
   fireFinishEvent,
+  fireHistoryEvent,
   fireInvalidEvent,
   fireNavigateEvent,
   fireProgressEvent,
@@ -169,6 +170,11 @@ export class Router {
 
   protected handleBackForwardVisit(page: Page): void {
     window.history.state.version = page.version
+
+    if (!fireHistoryEvent(page)) {
+      return
+    }
+
     this.setPage(window.history.state, { preserveScroll: true, preserveState: true }).then(() => {
       this.restoreScrollPositions()
       fireNavigateEvent(page)
@@ -517,6 +523,11 @@ export class Router {
   protected handlePopstateEvent(event: PopStateEvent): void {
     if (event.state !== null) {
       const page = event.state
+
+      if (!fireHistoryEvent(page)) {
+        return
+      }
+
       const visitId = this.createVisitId()
       Promise.resolve(this.resolveComponent(page.component)).then((component) => {
         if (visitId === this.visitId) {

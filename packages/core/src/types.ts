@@ -63,9 +63,9 @@ export type LocationVisit = {
   preserveScroll: boolean
 }
 
-export type Visit = {
+export type Visit<TData extends RequestPayload = RequestPayload> = {
   method: Method
-  data: RequestPayload
+  data: TData
   replace: boolean
   preserveScroll: PreserveStateOption
   preserveState: PreserveStateOption
@@ -166,8 +166,8 @@ export type GlobalEventCallback<TEventName extends GlobalEventNames> = (
   ...params: GlobalEventParameters<TEventName>
 ) => GlobalEventResult<TEventName>
 
-export type VisitOptions = Partial<
-  Visit & {
+export type VisitOptions<TData extends RequestPayload = RequestPayload> = Partial<
+  Visit<TData> & {
     onCancelToken: { ({ cancel }: { cancel: VoidFunction }): void }
     onBefore: GlobalEventCallback<'before'>
     onStart: GlobalEventCallback<'start'>

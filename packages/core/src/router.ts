@@ -1,4 +1,4 @@
-import { default as Axios, AxiosResponse } from 'axios'
+import { AxiosResponse, default as Axios } from 'axios'
 import debounce from './debounce'
 import {
   fireBeforeEvent,
@@ -264,11 +264,11 @@ export class Router {
     }
   }
 
-  public visit(
+  public visit<TData extends RequestPayload = RequestPayload>(
     href: string | URL,
     {
       method = 'get',
-      data = {},
+      data: visitData = {} as TData,
       replace = false,
       preserveScroll = false,
       preserveState = false,
@@ -286,9 +286,10 @@ export class Router {
       onSuccess = () => {},
       onError = () => {},
       queryStringArrayFormat = 'brackets',
-    }: VisitOptions = {},
+    }: VisitOptions<TData> = {},
   ): void {
     let url = typeof href === 'string' ? hrefToUrl(href) : href
+    let data: RequestPayload = visitData
 
     if ((hasFiles(data) || forceFormData) && !(data instanceof FormData)) {
       data = objectToFormData(data)
@@ -535,15 +536,24 @@ export class Router {
     }
   }
 
-  public get(url: URL | string, data: RequestPayload = {}, options: Omit<VisitOptions, 'method' | 'data'> = {}): void {
+  public get<TData extends RequestPayload = RequestPayload>(
+    url: URL | string,
+    data: TData = {} as TData,
+    options: Omit<VisitOptions<TData>, 'method' | 'data'> = {},
+  ): void {
     return this.visit(url, { ...options, method: 'get', data })
   }
 
-  public reload(options: Omit<VisitOptions, 'preserveScroll' | 'preserveState'> = {}): void {
+  public reload<TData extends RequestPayload = RequestPayload>(
+    options: Omit<VisitOptions<TData>, 'preserveScroll' | 'preserveState'> = {},
+  ): void {
     return this.visit(window.location.href, { ...options, preserveScroll: true, preserveState: true })
   }
 
-  public replace(url: URL | string, options: Omit<VisitOptions, 'replace'> = {}): void {
+  public replace<TData extends RequestPayload = RequestPayload>(
+    url: URL | string,
+    options: Omit<VisitOptions<TData>, 'replace'> = {},
+  ): void {
     console.warn(
       `Inertia.replace() has been deprecated and will be removed in a future release. Please use Inertia.${
         options.method ?? 'get'
@@ -552,23 +562,34 @@ export class Router {
     return this.visit(url, { preserveState: true, ...options, replace: true })
   }
 
-  public post(url: URL | string, data: RequestPayload = {}, options: Omit<VisitOptions, 'method' | 'data'> = {}): void {
+  public post<TData extends RequestPayload = RequestPayload>(
+    url: URL | string,
+    data: TData = {} as TData,
+    options: Omit<VisitOptions<TData>, 'method' | 'data'> = {},
+  ): void {
     return this.visit(url, { preserveState: true, ...options, method: 'post', data })
   }
 
-  public put(url: URL | string, data: RequestPayload = {}, options: Omit<VisitOptions, 'method' | 'data'> = {}): void {
+  public put<TData extends RequestPayload = RequestPayload>(
+    url: URL | string,
+    data: TData = {} as TData,
+    options: Omit<VisitOptions<TData>, 'method' | 'data'> = {},
+  ): void {
     return this.visit(url, { preserveState: true, ...options, method: 'put', data })
   }
 
-  public patch(
+  public patch<TData extends RequestPayload = RequestPayload>(
     url: URL | string,
-    data: RequestPayload = {},
-    options: Omit<VisitOptions, 'method' | 'data'> = {},
+    data: TData = {} as TData,
+    options: Omit<VisitOptions<TData>, 'method' | 'data'> = {},
   ): void {
     return this.visit(url, { preserveState: true, ...options, method: 'patch', data })
   }
 
-  public delete(url: URL | string, options: Omit<VisitOptions, 'method'> = {}): void {
+  public delete<TData extends RequestPayload = RequestPayload>(
+    url: URL | string,
+    options: Omit<VisitOptions<TData>, 'method'> = {},
+  ): void {
     return this.visit(url, { preserveState: true, ...options, method: 'delete' })
   }
 

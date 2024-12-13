@@ -168,8 +168,21 @@ export class Router {
   }
 
   protected handleBackForwardVisit(page: Page): void {
-    window.history.state.version = page.version
-    this.setPage(window.history.state, { preserveScroll: true, preserveState: true }).then(() => {
+    let currentState
+
+    /* This ensures we give precedence to a fresh state.
+    'page' here holds the props from the latest backend request.
+    This prevents user A logging out and user B seeing sensitive data
+    from user A by going back in the history (shared computer)
+    */
+    if (page.props) {
+      currentState = page
+    } else {
+      window.history.state.version = page.version
+      currentState = window.history.state
+    }
+
+    this.setPage(currentState, { preserveScroll: true, preserveState: true }).then(() => {
       this.restoreScrollPositions()
       fireNavigateEvent(page)
     })

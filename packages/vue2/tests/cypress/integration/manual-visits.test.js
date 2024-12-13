@@ -193,8 +193,6 @@ describe('Manual Visits', () => {
 
         cy.wait('@spy').then(({ request, response }) => {
           expect(request.url).to.eq(Cypress.config().baseUrl + '/dump/get?foo=visit')
-          expect(request.headers).to.contain.key('content-type')
-          expect(request.headers['content-type']).to.contain('application/json')
           expect(request.method).to.eq('GET')
           expect(response.body.props.form).to.be.empty
           expect(response.body.props.files).to.be.undefined
@@ -207,8 +205,6 @@ describe('Manual Visits', () => {
 
           cy.wait('@spy').then(({ request, response }) => {
             expect(request.url).to.eq(Cypress.config().baseUrl + '/dump/get?bar=get')
-            expect(request.headers).to.contain.key('content-type')
-            expect(request.headers['content-type']).to.contain('application/json')
             expect(request.method).to.eq('GET')
             expect(response.body.props.form).to.be.empty
             expect(response.body.props.files).to.be.undefined

@@ -15,6 +15,7 @@ export interface InertiaLinkProps {
   except?: string[]
   onCancelToken?: (cancelToken: import('axios').CancelTokenSource) => void
   onBefore?: () => void
+  onError?: () => void
   onStart?: () => void
   onProgress?: (progress: Progress) => void
   onFinish?: () => void
@@ -68,6 +69,30 @@ const Link: InertiaLink = defineComponent({
       type: Object,
       default: () => ({}),
     },
+    onCancelToken: {
+      default: () => (() => {}),
+    },
+    onBefore: {
+      default: () => (() => {}),
+    },
+    onError: {
+      default: () => (() => {}),
+    },
+    onStart: {
+      default: () => (() => {}),
+    },
+    onProgress: {
+      default: () => (() => {}),
+    },
+    onFinish: {
+      default: () => (() => {}),
+    },
+    onCancel: {
+      default: () => (() => {}),
+    },
+    onSuccess: {
+      default: () => (() => {}),
+    },
     queryStringArrayFormat: {
       type: String as PropType<'brackets' | 'indices'>,
       default: 'brackets',
@@ -103,22 +128,14 @@ const Link: InertiaLink = defineComponent({
                 only: props.only,
                 except: props.except,
                 headers: props.headers,
-                // @ts-expect-error
-                onCancelToken: attrs.onCancelToken || (() => ({})),
-                // @ts-expect-error
-                onBefore: attrs.onBefore || (() => ({})),
-                // @ts-expect-error
-                onStart: attrs.onStart || (() => ({})),
-                // @ts-expect-error
-                onProgress: attrs.onProgress || (() => ({})),
-                // @ts-expect-error
-                onFinish: attrs.onFinish || (() => ({})),
-                // @ts-expect-error
-                onCancel: attrs.onCancel || (() => ({})),
-                // @ts-expect-error
-                onSuccess: attrs.onSuccess || (() => ({})),
-                // @ts-expect-error
-                onError: attrs.onError || (() => ({})),
+                onCancelToken: props.onCancelToken,
+                onBefore: props.onBefore,
+                onStart: props.onStart,
+                onProgress: props.onProgress,
+                onFinish: props.onFinish,
+                onCancel: props.onCancel,
+                onSuccess: props.onSuccess,
+                onError: props.onError,
               })
             }
           },

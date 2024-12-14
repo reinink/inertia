@@ -180,9 +180,6 @@ export class Router {
       const locationVisit: LocationVisit = { preserveScroll }
       window.sessionStorage.setItem('inertiaLocationVisit', JSON.stringify(locationVisit))
       window.location.href = url.href
-      if (urlWithoutHash(window.location).href === urlWithoutHash(url).href) {
-        window.location.reload()
-      }
     } catch (error) {
       return false
     }

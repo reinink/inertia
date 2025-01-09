@@ -3,11 +3,19 @@ import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
 import { reactive, watch } from 'vue'
 
+type FormDataKeys<T> = {
+  [K in keyof T & string]: T[K] extends object
+    ? T[K] extends Array<any>
+      ? K
+      : `${K}.${FormDataKeys<T[K]>}` | K
+    : K;
+}[keyof T & string];
+
 type FormDataType = object
 
 interface InertiaFormProps<TForm extends FormDataType> {
   isDirty: boolean
-  errors: Partial<Record<keyof TForm, string>>
+  errors: Partial<Record<FormDataKeys<TForm>, string>>
   hasErrors: boolean
   processing: boolean
   progress: Progress | null
@@ -19,9 +27,9 @@ interface InertiaFormProps<TForm extends FormDataType> {
   defaults(field: keyof TForm, value: FormDataConvertible): this
   defaults(fields: Partial<TForm>): this
   reset(...fields: (keyof TForm)[]): this
-  clearErrors(...fields: (keyof TForm)[]): this
-  setError(field: keyof TForm, value: string): this
-  setError(errors: Record<keyof TForm, string>): this
+  clearErrors(...fields: FormDataKeys<TForm>[]): this
+  setError(field: FormDataKeys<TForm>, value: string): this
+  setError(errors: Partial<Record<FormDataKeys<TForm>, string>>): this
   submit(method: Method, url: string, options?: Partial<VisitOptions>): void
   get(url: string, options?: Partial<VisitOptions>): void
   post(url: string, options?: Partial<VisitOptions>): void
@@ -45,7 +53,7 @@ export default function useForm<TForm extends FormDataType>(
   const rememberKey = typeof rememberKeyOrData === 'string' ? rememberKeyOrData : null
   const data = typeof rememberKeyOrData === 'string' ? maybeData : rememberKeyOrData
   const restored = rememberKey
-    ? (router.restore(rememberKey) as { data: TForm; errors: Record<keyof TForm, string> })
+    ? (router.restore(rememberKey) as { data: TForm; errors: Partial<Record<FormDataKeys<TForm>, string>> })
     : null
   let defaults = typeof data === 'object' ? cloneDeep(data) : cloneDeep(data())
   let cancelToken = null
@@ -106,18 +114,18 @@ export default function useForm<TForm extends FormDataType>(
 
       return this
     },
-    setError(fieldOrFields: keyof TForm | Record<keyof TForm, string>, maybeValue?: string) {
+    setError(fieldOrFields: FormDataKeys<TForm> | Partial<Record<FormDataKeys<TForm>, string>>, maybeValue?: string) {
       Object.assign(this.errors, typeof fieldOrFields === 'string' ? { [fieldOrFields]: maybeValue } : fieldOrFields)
 
       this.hasErrors = Object.keys(this.errors).length > 0
 
       return this
     },
-    clearErrors(...fields) {
-      this.errors = Object.keys(this.errors).reduce(
+    clearErrors(...fields: FormDataKeys<TForm>[]) {
+      this.errors = Object.keys(this.errors as object).reduce(
         (carry, field) => ({
           ...carry,
-          ...(fields.length > 0 && !fields.includes(field) ? { [field]: this.errors[field] } : {}),
+          ...(fields.length > 0 && !fields.includes(field as FormDataKeys<TForm>) ? { [field]: this.errors[field as FormDataKeys<TForm>] } : {}),
         }),
         {},
       )
@@ -176,7 +184,7 @@ export default function useForm<TForm extends FormDataType>(
         onError: (errors) => {
           this.processing = false
           this.progress = null
-          this.clearErrors().setError(errors)
+          this.clearErrors().setError(errors as Partial<Record<FormDataKeys<TForm>, string>>)
 
           if (options.onError) {
             return options.onError(errors)

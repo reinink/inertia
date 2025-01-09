@@ -3,6 +3,14 @@ import isEqual from 'lodash.isequal'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useRemember from './useRemember'
 
+type FormDataKeys<T> = {
+  [K in keyof T & string]: T[K] extends object
+    ? T[K] extends Array<any>
+      ? K
+      : `${K}.${FormDataKeys<T[K]>}` | K
+    : K;
+}[keyof T & string];
+
 type setDataByObject<TForm> = (data: TForm) => void
 type setDataByMethod<TForm> = (data: (previousData: TForm) => TForm) => void
 type setDataByKeyValuePair<TForm> = <K extends keyof TForm>(key: K, value: TForm[K]) => void
@@ -11,7 +19,7 @@ type FormDataType = object
 export interface InertiaFormProps<TForm extends FormDataType> {
   data: TForm
   isDirty: boolean
-  errors: Partial<Record<keyof TForm, string>>
+  errors: Partial<Record<FormDataKeys<TForm>, string>>
   hasErrors: boolean
   processing: boolean
   progress: Progress | null
@@ -23,9 +31,9 @@ export interface InertiaFormProps<TForm extends FormDataType> {
   setDefaults(field: keyof TForm, value: FormDataConvertible): void
   setDefaults(fields: Partial<TForm>): void
   reset: (...fields: (keyof TForm)[]) => void
-  clearErrors: (...fields: (keyof TForm)[]) => void
-  setError(field: keyof TForm, value: string): void
-  setError(errors: Record<keyof TForm, string>): void
+  clearErrors: (...fields: FormDataKeys<TForm>[]) => void
+  setError(field: FormDataKeys<TForm>, value: string): void
+  setError(errors: Partial<Record<FormDataKeys<TForm>, string>>): void
   submit: (method: Method, url: string, options?: VisitOptions) => void
   get: (url: string, options?: VisitOptions) => void
   patch: (url: string, options?: VisitOptions) => void
@@ -52,8 +60,8 @@ export default function useForm<TForm extends FormDataType>(
   const recentlySuccessfulTimeoutId = useRef(null)
   const [data, setData] = rememberKey ? useRemember(defaults, `${rememberKey}:data`) : useState(defaults)
   const [errors, setErrors] = rememberKey
-    ? useRemember({} as Partial<Record<keyof TForm, string>>, `${rememberKey}:errors`)
-    : useState({} as Partial<Record<keyof TForm, string>>)
+    ? useRemember({} as Partial<Record<FormDataKeys<TForm>, string>>, `${rememberKey}:errors`)
+    : useState({} as Partial<Record<FormDataKeys<TForm>, string>>)
   const [hasErrors, setHasErrors] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [progress, setProgress] = useState(null)
@@ -125,7 +133,7 @@ export default function useForm<TForm extends FormDataType>(
           if (isMounted.current) {
             setProcessing(false)
             setProgress(null)
-            setErrors(errors)
+            setErrors(errors as Partial<Record<FormDataKeys<TForm>, string>>)
             setHasErrors(true)
           }
 
@@ -214,13 +222,13 @@ export default function useForm<TForm extends FormDataType>(
         )
       }
     },
-    setError(fieldOrFields: keyof TForm | Record<keyof TForm, string>, maybeValue?: string) {
+    setError(fieldOrFields: FormDataKeys<TForm> | Partial<Record<FormDataKeys<TForm>, string>>, maybeValue?: string) {
       setErrors((errors) => {
         const newErrors = {
           ...errors,
           ...(typeof fieldOrFields === 'string'
             ? { [fieldOrFields]: maybeValue }
-            : (fieldOrFields as Record<keyof TForm, string>)),
+            : fieldOrFields),
         }
         setHasErrors(Object.keys(newErrors).length > 0)
         return newErrors
@@ -228,10 +236,10 @@ export default function useForm<TForm extends FormDataType>(
     },
     clearErrors(...fields) {
       setErrors((errors) => {
-        const newErrors = (Object.keys(errors) as Array<keyof TForm>).reduce(
+        const newErrors = Object.keys(errors).reduce(
           (carry, field) => ({
             ...carry,
-            ...(fields.length > 0 && !fields.includes(field) ? { [field]: errors[field] } : {}),
+            ...(fields.length > 0 && !fields.includes(field as FormDataKeys<TForm>) ? { [field]: errors[field as FormDataKeys<TForm>] } : {}),
           }),
           {},
         )

@@ -227,15 +227,12 @@ const Link: InertiaLink = defineComponent({
     }
 
     const regularEvents = {
-      onClick: (event) => {
+      onClick: (event: Parameters<InertiaLinkProps['onClick']>[0]) => {
         if (shouldIntercept(event)) {
           event.preventDefault()
           router.visit(href.value, visitParams)
         }
       },
-    }
-
-    const prefetchHoverEvents = {
       onMouseenter: () => {
         hoverTimeout.value = setTimeout(() => {
           prefetch()
@@ -244,6 +241,14 @@ const Link: InertiaLink = defineComponent({
       onMouseleave: () => {
         clearTimeout(hoverTimeout.value)
       },
+    }
+
+    const prefetchHoverEvents = {
+      onMouseenter: regularEvents.onMouseenter,
+      onMouseleave: regularEvents.onMouseleave,
+      onTouchstart: regularEvents.onMouseenter,
+      onFocus: regularEvents.onMouseenter,
+      onBlur: regularEvents.onMouseleave,
       onClick: regularEvents.onClick,
     }
 

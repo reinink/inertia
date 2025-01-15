@@ -54,22 +54,31 @@ function link(
   let baseParams: VisitOptions
   let visitParams: VisitOptions
 
-  const regularEvents: ActionEventHandlers = {
+  const regularEvents = {
     click: (event) => {
       if (shouldIntercept(event)) {
         event.preventDefault()
         router.visit(href, visitParams)
       }
     },
-  }
+    mouseenter: () => {
+      hoverTimeout = setTimeout(() => prefetch(), 75)
+    },
+    mouseleave: () => {
+      clearTimeout(hoverTimeout)
+    },
+  } satisfies ActionEventHandlers
 
-  const prefetchHoverEvents: ActionEventHandlers = {
-    mouseenter: () => (hoverTimeout = setTimeout(() => prefetch(), 75)),
-    mouseleave: () => clearTimeout(hoverTimeout),
+  const prefetchHoverEvents = {
+    mouseenter: regularEvents.mouseenter,
+    mouseleave: regularEvents.mouseleave,
+    touchstart: regularEvents.mouseenter,
+    focus: regularEvents.mouseenter,
+    blur: regularEvents.mouseleave,
     click: regularEvents.click,
-  }
+  } satisfies ActionEventHandlers
 
-  const prefetchClickEvents: ActionEventHandlers = {
+  const prefetchClickEvents = {
     mousedown: (event) => {
       if (shouldIntercept(event)) {
         event.preventDefault()
@@ -86,7 +95,7 @@ function link(
         event.preventDefault()
       }
     },
-  }
+  } satisfies ActionEventHandlers
 
   function update({ cacheFor = 0, prefetch = false, ...params }: ActionParameters) {
     prefetchModes = (() => {

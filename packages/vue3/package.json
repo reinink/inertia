@@ -58,8 +58,8 @@
     "vue": "^3.0.0"
   },
   "dependencies": {
+    "@gilbarbara/deep-equal": "^0.3.1",
     "@inertiajs/core": "2.0.3",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0"
+	  "klona": "^2.0.5"
   }
 }

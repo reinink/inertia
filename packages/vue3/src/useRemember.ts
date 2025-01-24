@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/core'
-import cloneDeep from 'lodash.clonedeep'
+import { klona } from 'klona/full'
 import { isReactive, reactive, ref, Ref, watch } from 'vue'
 
 export default function useRemember<T extends object>(
@@ -18,7 +18,7 @@ export default function useRemember<T extends object>(
   watch(
     remembered,
     (newValue) => {
-      router.remember(cloneDeep(hasCallbacks ? data.__remember() : newValue), key)
+      router.remember(klona(hasCallbacks ? data.__remember() : newValue), key)
     },
     { immediate: true, deep: true },
   )

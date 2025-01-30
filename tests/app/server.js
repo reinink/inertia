@@ -259,14 +259,25 @@ app.get('/when-visible', (req, res) => {
 })
 
 app.get('/merge-props', (req, res) => {
-  inertia.render(req, res, {
-    component: 'MergeProps',
-    props: {
-      bar: new Array(5).fill(1),
-      foo: new Array(5).fill(1),
-    },
-    ...(req.headers['x-inertia-reset'] ? {} : { mergeProps: ['foo'] }),
-  })
+    inertia.render(req, res, {
+        component: 'MergeProps',
+        props: {
+            bar: new Array(5).fill(1),
+            foo: new Array(5).fill(1),
+        },
+        ...(req.headers['x-inertia-reset'] ? {} : { mergeProps: ['foo'] }),
+    })
+})
+
+app.get('/deep-merge-props', (req, res) => {
+    inertia.render(req, res, {
+        component: 'MergeProps',
+        props: {
+            bar: new Array(5).fill(1),
+            foo: new Array(5).fill(1),
+        },
+        ...(req.headers['x-inertia-reset'] ? {} : { deepMergeProps: ['foo'] }),
+    })
 })
 
 app.get('/deferred-props/page-1', (req, res) => {

@@ -22,17 +22,17 @@ const WhenVisible = ({ children, data, params, buffer, as, always, fallback }: W
   const ref = useRef<HTMLDivElement>(null)
 
   const getReloadParams = useCallback<() => Partial<ReloadOptions>>(() => {
-    if (data) {
-      return {
-        only: (Array.isArray(data) ? data : [data]) as string[],
+      if (!params && !data) {
+          throw new Error('You must provide either a `data` or `params` prop.')
       }
-    }
 
-    if (!params) {
-      throw new Error('You must provide either a `data` or `params` prop.')
-    }
+      const reloadParams: Partial<ReloadOptions> = params || {} ;
 
-    return params
+      if (data) {
+          reloadParams.only = (Array.isArray(data) ? data : [data]) as string[];
+      }
+
+      return reloadParams;
   }, [params, data])
 
   useEffect(() => {

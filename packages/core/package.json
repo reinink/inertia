@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@types/deepmerge": "^2.2.0",
-    "@types/node": "^14.0",
+    "@types/node": "^18.4",
     "@types/nprogress": "^0.2.0",
     "@types/qs": "^6.9.0",
     "esbuild": "^0.16.13",

@@ -43,9 +43,10 @@
     "svelte": "^4.0.0 || ^5.0.0 || ^5.0.0-next.244"
   },
   "dependencies": {
+    "@gilbarbara/deep-equal": "^0.3.1",
     "@inertiajs/core": "2.0.3",
     "html-escape": "^2.0.0",
-    "lodash": "^4.5.0"
+	  "klona": "^2.0.5"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.2.0",
@@ -53,7 +54,6 @@
     "@sveltejs/package": "^2.3.4",
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@types/html-escape": "^2.0.2",
-    "@types/lodash": "^4.17.7",
     "axios": "^1.7.6",
     "publint": "^0.2.10",
     "svelte": "^4.2.16",

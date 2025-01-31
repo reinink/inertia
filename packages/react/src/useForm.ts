@@ -1,5 +1,5 @@
 import { FormDataConvertible, Method, Progress, router, VisitOptions } from '@inertiajs/core'
-import isEqual from 'lodash.isequal'
+import isDeepEqual from '@gilbarbara/deep-equal'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useRemember from './useRemember'
 
@@ -270,7 +270,7 @@ export default function useForm<TForm extends FormDataType>(
   return {
     data,
     setData: setDataFunction,
-    isDirty: !isEqual(data, defaults),
+    isDirty: !isDeepEqual(data, defaults),
     errors,
     hasErrors,
     processing,

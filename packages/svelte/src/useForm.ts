@@ -11,8 +11,8 @@ import type {
 } from '@inertiajs/core'
 import { router } from '@inertiajs/core'
 import type { AxiosProgressEvent } from 'axios'
-import cloneDeep from 'lodash/cloneDeep'
-import isEqual from 'lodash/isEqual'
+import { klona } from 'klona/full'
+import isDeepEqual from '@gilbarbara/deep-equal'
 import { writable, type Writable } from 'svelte/store'
 
 type FormDataType = Record<string, FormDataConvertible>
@@ -63,7 +63,7 @@ export default function useForm<TForm extends FormDataType>(
   const restored = rememberKey
     ? (router.restore(rememberKey) as { data: TForm; errors: Record<keyof TForm, string> } | null)
     : null
-  let defaults = cloneDeep(data)
+  let defaults = klona(data)
   let cancelToken: { cancel: () => void } | null = null
   let recentlySuccessfulTimeoutId: ReturnType<typeof setTimeout> | null = null
   let transform = (data: TForm) => data as object
@@ -95,16 +95,16 @@ export default function useForm<TForm extends FormDataType>(
     defaults(fieldOrFields?: keyof TForm | Partial<TForm>, maybeValue?: FormDataConvertible) {
       defaults =
         typeof fieldOrFields === 'undefined'
-          ? cloneDeep(this.data())
+          ? klona(this.data())
           : Object.assign(
-              cloneDeep(defaults),
+              klona(defaults),
               typeof fieldOrFields === 'string' ? { [fieldOrFields]: maybeValue } : fieldOrFields,
             )
 
       return this
     },
     reset(...fields) {
-      const clonedData = cloneDeep(defaults)
+      const clonedData = klona(defaults)
       if (fields.length === 0) {
         this.setStore(clonedData)
       } else {
@@ -244,7 +244,7 @@ export default function useForm<TForm extends FormDataType>(
   } as InertiaForm<TForm>)
 
   store.subscribe((form) => {
-    if (form.isDirty === isEqual(form.data(), defaults)) {
+    if (form.isDirty === isDeepEqual(form.data(), defaults)) {
       form.setStore('isDirty', !form.isDirty)
     }
 

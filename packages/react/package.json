@@ -59,7 +59,7 @@
     "react": "^16.9.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@inertiajs/core": "2.0.3",
-    "lodash.isequal": "^4.5.0"
+    "@gilbarbara/deep-equal": "^0.3.1",
+    "@inertiajs/core": "2.0.3"
   }
 }

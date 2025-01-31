@@ -1,5 +1,5 @@
 import { PollOptions, ReloadOptions, router } from '@inertiajs/core'
-import { onMounted, onUnmounted } from 'vue'
+import { computed, ComputedRef, onMounted, onUnmounted, ref } from 'vue'
 
 export default function usePoll(
   interval: number,
@@ -11,24 +11,28 @@ export default function usePoll(
 ): {
   stop: VoidFunction
   start: VoidFunction
+  toggle: VoidFunction
+  polling: ComputedRef<boolean>
 } {
-  const { stop, start } = router.poll(interval, requestOptions, {
+  const poll = ref(router.poll(interval, requestOptions, {
     ...options,
     autoStart: false,
-  })
+  }))
 
   onMounted(() => {
     if (options.autoStart ?? true) {
-      start()
+      poll.value.start()
     }
   })
 
   onUnmounted(() => {
-    stop()
+    poll.value.stop()
   })
 
   return {
-    stop,
-    start,
+    stop: () => poll.value.stop(),
+    start: () => poll.value.start(),
+    toggle: () => poll.value.toggle(),
+    polling: computed(() => poll.value.polling()),
   }
 }

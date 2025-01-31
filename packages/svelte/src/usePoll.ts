@@ -8,21 +8,31 @@ export default function usePoll(
     keepAlive: false,
     autoStart: true,
   },
-) {
-  const { stop, start } = router.poll(interval, requestOptions, {
+): {
+  stop: VoidFunction
+  start: VoidFunction
+  toggle: VoidFunction
+  polling: () => boolean
+} {
+  const poll = router.poll(interval, requestOptions, {
     ...options,
     autoStart: false,
   })
 
   onMount(() => {
     if (options.autoStart ?? true) {
-      start()
+      poll.start()
     }
   })
 
   onDestroy(() => {
-    stop()
+    poll.stop()
   })
 
-  return { stop, start }
+  return {
+    stop: () => poll.stop(),
+    start: () => poll.start(),
+    toggle: () => poll.toggle(),
+    polling: () => poll.polling(),
+  }
 }

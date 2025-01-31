@@ -24,6 +24,7 @@ export class Poll {
     if (this.id) {
       //   console.log('clearing interval...')
       clearInterval(this.id)
+      this.id = null
     }
   }
 
@@ -51,5 +52,17 @@ export class Poll {
     if (this.throttle) {
       this.cbCount = 0
     }
+  }
+
+  public toggle(): void {
+    if (this.polling()) {
+      return this.stop()
+    }
+
+    this.start()
+  }
+
+  public polling(): boolean {
+    return !!this.id
   }
 }

@@ -8,7 +8,12 @@ export default function usePoll(
     keepAlive: false,
     autoStart: true,
   },
-) {
+): {
+  stop: VoidFunction
+  start: VoidFunction
+  toggle: VoidFunction
+  polling: () => boolean
+} {
   const pollRef = useRef(
     router.poll(interval, requestOptions, {
       ...options,
@@ -27,5 +32,7 @@ export default function usePoll(
   return {
     stop: pollRef.current.stop,
     start: pollRef.current.start,
+    toggle: pollRef.current.toggle,
+    polling: pollRef.current.polling,
   }
 }

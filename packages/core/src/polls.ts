@@ -12,18 +12,12 @@ class Polls {
     interval: number,
     cb: VoidFunction,
     options: PollOptions,
-  ): {
-    stop: VoidFunction
-    start: VoidFunction
-  } {
+  ): Poll {
     const poll = new Poll(interval, cb, options)
 
     this.polls.push(poll)
 
-    return {
-      stop: () => poll.stop(),
-      start: () => poll.start(),
-    }
+    return poll
   }
 
   public clear() {

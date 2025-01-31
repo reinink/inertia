@@ -17,6 +17,11 @@ interface CreateInertiaAppProps {
       }
   page?: Page
   render?: (app: VueApp) => Promise<string>
+  keepAliveResolver?: (component: DefineComponent) => {
+    enabled: boolean
+    includes?: string[]
+    maxLength?: number
+  }
 }
 
 export default async function createInertiaApp({
@@ -27,6 +32,7 @@ export default async function createInertiaApp({
   progress = {},
   page,
   render,
+  keepAliveResolver,
 }: CreateInertiaAppProps): Promise<{ head: string[]; body: string }> {
   const isServer = typeof window === 'undefined'
   const el = isServer ? null : document.getElementById(id)
@@ -48,6 +54,7 @@ export default async function createInertiaApp({
         resolveComponent,
         titleCallback: title,
         onHeadUpdate: isServer ? (elements) => (head = elements) : null,
+        keepAliveResolver,
       },
       plugin,
     })

@@ -1,9 +1,11 @@
 import { createHeadManager, Page, PageHandler, router } from '@inertiajs/core'
-import { ComponentPublicInstance } from 'vue'
 import useForm from './useForm'
+import { DefineComponent } from 'vue'
 
 export type VuePageHandlerArgs = Parameters<PageHandler>[0] & {
-  component: ComponentPublicInstance | Promise<ComponentPublicInstance>
+  component: DefineComponent & { name?: string }
+  page: Page
+  preserveState: boolean
 }
 
 declare module '@inertiajs/core' {

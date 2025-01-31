@@ -9,11 +9,17 @@ import {
   PropType,
   reactive,
   ref,
-  shallowRef,
+  KeepAlive,
 } from 'vue'
 import remember from './remember'
 import { VuePageHandlerArgs } from './types'
 import useForm from './useForm'
+
+interface KeepAliveOptions {
+  enabled: boolean
+  includes?: string[]
+  maxLength?: number
+}
 
 export interface InertiaAppProps {
   initialPage: Page
@@ -21,13 +27,13 @@ export interface InertiaAppProps {
   resolveComponent?: (name: string) => DefineComponent | Promise<DefineComponent>
   titleCallback?: (title: string) => string
   onHeadUpdate?: (elements: string[]) => void
+  keepAliveResolver?: (component: DefineComponent) => KeepAliveOptions
 }
 
 export type InertiaApp = DefineComponent<InertiaAppProps>
 
 const component = ref(null)
 const page = ref<Page<any>>(null)
-const layout = shallowRef(null)
 const key = ref(null)
 let headManager = null
 
@@ -56,23 +62,42 @@ const App: InertiaApp = defineComponent({
       required: false,
       default: () => () => {},
     },
+    keepAliveResolver: {
+      type: Function as PropType<(component: DefineComponent) => KeepAliveOptions>,
+      required: false,
+      default: () => ({
+        enabled: false,
+      }),
+    },
   },
-  setup({ initialPage, initialComponent, resolveComponent, titleCallback, onHeadUpdate }) {
-    component.value = initialComponent ? markRaw(initialComponent) : null
-    page.value = initialPage
+  setup(props) {
+    component.value = props.initialComponent ? markRaw(props.initialComponent) : null
+    page.value = props.initialPage
     key.value = null
 
     const isServer = typeof window === 'undefined'
-    headManager = createHeadManager(isServer, titleCallback, onHeadUpdate)
+    headManager = createHeadManager(isServer, props.titleCallback, props.onHeadUpdate)
 
     if (!isServer) {
       router.init({
-        initialPage,
-        resolveComponent,
+        initialPage: props.initialPage,
+        resolveComponent: props.resolveComponent,
         swapComponent: async (args: VuePageHandlerArgs) => {
           component.value = markRaw(args.component)
           page.value = args.page
-          key.value = args.preserveState ? key.value : Date.now()
+
+          const urlParams = new URLSearchParams(args.page.url.split('?')[1] || '')
+          const id = urlParams.get('KeepAliveId')
+          const componentName = (args.component as any)?.name || args.page.component
+          
+          if (id) {
+            key.value = `${componentName}-${id}`
+          } else if (args.preserveState) {
+            key.value = key.value
+          } else {
+            // Use a combination of timestamp and random number to ensure uniqueness
+            key.value = `${Date.now()}-${Math.random()}`
+          }
         },
       })
 
@@ -83,23 +108,36 @@ const App: InertiaApp = defineComponent({
       if (component.value) {
         component.value.inheritAttrs = !!component.value.inheritAttrs
 
+        const componentName = (component.value as any)?.name || 
+                            (component.value as any)?.__name ||
+                            page.value?.component
+
+        const componentKey = componentName || key.value
+
         const child = h(component.value, {
           ...page.value.props,
-          key: key.value,
+          key: componentKey,
         })
 
-        if (layout.value) {
-          component.value.layout = layout.value
-          layout.value = null
+        const renderPage = () => {
+          const keepAliveOptions = props.keepAliveResolver(component.value)
+
+          if (keepAliveOptions.enabled) {
+            return h(KeepAlive, {
+              max: keepAliveOptions.maxLength || 10,
+              include: keepAliveOptions.includes || [],
+            }, () => child)
+          }
+          return child
         }
 
         if (component.value.layout) {
           if (typeof component.value.layout === 'function') {
-            return component.value.layout(h, child)
+            return component.value.layout(h, renderPage())
           }
 
           return (Array.isArray(component.value.layout) ? component.value.layout : [component.value.layout])
-            .concat(child)
+            .concat(renderPage())
             .reverse()
             .reduce((child, layout) => {
               layout.inheritAttrs = !!layout.inheritAttrs
@@ -107,7 +145,7 @@ const App: InertiaApp = defineComponent({
             })
         }
 
-        return child
+        return renderPage()
       }
     }
   },

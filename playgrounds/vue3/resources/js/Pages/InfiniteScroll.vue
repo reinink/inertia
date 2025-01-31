@@ -67,7 +67,7 @@ const setItemType = (type: string) => {
     <div v-if="!items" class="p-4 text-center bg-gray-100">Loading items...</div>
     <WhenVisible
       v-else
-      :once="false"
+      always
       :buffer="200"
       :params="{
         data: {

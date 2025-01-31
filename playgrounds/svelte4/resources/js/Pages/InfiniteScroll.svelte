@@ -68,7 +68,7 @@
 
   {#if items.length > 0}
     <WhenVisible
-      once={false}
+      always
       buffer={200}
       params={{
         data: {

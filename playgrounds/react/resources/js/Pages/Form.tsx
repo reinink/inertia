@@ -11,6 +11,11 @@ const Form = () => {
   function submit(e) {
     e.preventDefault()
     form.post('/user')
+
+    form.setError({
+      'name': 'Name is required',
+      'company': 'Company is required',
+    })
   }
 
   return (

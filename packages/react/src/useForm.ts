@@ -26,7 +26,7 @@ export interface InertiaFormProps<TForm extends FormDataType> {
   reset: (...fields: (keyof TForm)[]) => void
   clearErrors: (...fields: (keyof TForm)[]) => void
   setError(field: keyof TForm, value: string): void
-  setError(errors: Record<keyof TForm, string>): void
+  setError(errors: Partial<Record<keyof TForm, string>>): void
   submit: (method: Method, url: string, options?: FormOptions) => void
   get: (url: string, options?: FormOptions) => void
   patch: (url: string, options?: FormOptions) => void
@@ -216,13 +216,13 @@ export default function useForm<TForm extends FormDataType>(
   )
 
   const setError = useCallback(
-    (fieldOrFields: keyof TForm | Record<keyof TForm, string>, maybeValue?: string) => {
+    (fieldOrFields: keyof TForm | Partial<Record<keyof TForm, string>>, maybeValue?: string) => {
       setErrors((errors) => {
         const newErrors = {
           ...errors,
           ...(typeof fieldOrFields === 'string'
             ? { [fieldOrFields]: maybeValue }
-            : (fieldOrFields as Record<keyof TForm, string>)),
+            : (fieldOrFields as Partial<Record<keyof TForm, string>>)),
         }
         setHasErrors(Object.keys(newErrors).length > 0)
         return newErrors

@@ -10,6 +10,6 @@ createServer((page) =>
     },
     setup({ App, props }) {
       return App.render(props)
-    }
+    },
   }),
 )

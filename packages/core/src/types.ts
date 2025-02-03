@@ -21,6 +21,10 @@ export type FormDataConvertible =
   | null
   | undefined
 
+export type FormDataKeys<T> = {
+  [K in keyof T & string]: T[K] extends object ? (T[K] extends Array<any> ? K : `${K}.${FormDataKeys<T[K]>}` | K) : K
+}[keyof T & string]
+
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete'
 
 export type RequestPayload = Record<string, FormDataConvertible> | FormData

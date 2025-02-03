@@ -1,22 +1,22 @@
 <script>
   import { router } from '@inertiajs/svelte'
 
-  export let foo;
-  export let bar;
+  export let foo
+  export let bar
 
   const replace = () => {
     router.replace({
       props: (props) => ({ ...props, foo: 'foo from client' }),
-    });
-  };
+    })
+  }
 
   const push = () => {
     router.push({
       url: '/client-side-visit-2',
       component: 'ClientSideVisit/Page2',
       props: { baz: 'baz from client' },
-    });
-  };
+    })
+  }
 </script>
 
 <div>

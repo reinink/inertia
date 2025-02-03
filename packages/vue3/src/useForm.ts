@@ -1,6 +1,5 @@
-import { FormDataConvertible, Method, Progress, router, VisitOptions } from '@inertiajs/core'
-import cloneDeep from 'lodash.clonedeep'
-import isEqual from 'lodash.isequal'
+import { FormDataConvertible, FormDataKeys, Method, Progress, router, VisitOptions } from '@inertiajs/core'
+import { cloneDeep, get, has, isEqual, set } from 'lodash'
 import { reactive, watch } from 'vue'
 
 type FormDataType = Record<string, FormDataConvertible>
@@ -8,7 +7,7 @@ type FormOptions = Omit<VisitOptions, 'data'>
 
 export interface InertiaFormProps<TForm extends FormDataType> {
   isDirty: boolean
-  errors: Partial<Record<keyof TForm, string>>
+  errors: Partial<Record<FormDataKeys<TForm>, string>>
   hasErrors: boolean
   processing: boolean
   progress: Progress | null
@@ -17,12 +16,12 @@ export interface InertiaFormProps<TForm extends FormDataType> {
   data(): TForm
   transform(callback: (data: TForm) => object): this
   defaults(): this
-  defaults(field: keyof TForm, value: FormDataConvertible): this
+  defaults(field: FormDataKeys<TForm>, value: FormDataConvertible): this
   defaults(fields: Partial<TForm>): this
-  reset(...fields: (keyof TForm)[]): this
-  clearErrors(...fields: (keyof TForm)[]): this
-  setError(field: keyof TForm, value: string): this
-  setError(errors: Record<keyof TForm, string>): this
+  reset(...fields: FormDataKeys<TForm>[]): this
+  clearErrors(...fields: FormDataKeys<TForm>[]): this
+  setError(field: FormDataKeys<TForm>, value: string): this
+  setError(errors: Record<FormDataKeys<TForm>, string>): this
   submit(method: Method, url: string, options?: FormOptions): void
   get(url: string, options?: FormOptions): void
   post(url: string, options?: FormOptions): void
@@ -46,7 +45,7 @@ export default function useForm<TForm extends FormDataType>(
   const rememberKey = typeof rememberKeyOrData === 'string' ? rememberKeyOrData : null
   const data = (typeof rememberKeyOrData === 'string' ? maybeData : rememberKeyOrData) ?? {}
   const restored = rememberKey
-    ? (router.restore(rememberKey) as { data: TForm; errors: Record<keyof TForm, string> })
+    ? (router.restore(rememberKey) as { data: TForm; errors: Record<FormDataKeys<TForm>, string> })
     : null
   let defaults = typeof data === 'function' ? cloneDeep(data()) : cloneDeep(data)
   let cancelToken = null
@@ -63,9 +62,8 @@ export default function useForm<TForm extends FormDataType>(
     wasSuccessful: false,
     recentlySuccessful: false,
     data() {
-      return (Object.keys(defaults) as Array<keyof TForm>).reduce((carry, key) => {
-        carry[key] = this[key]
-        return carry
+      return (Object.keys(defaults) as Array<FormDataKeys<TForm>>).reduce((carry, key) => {
+        return set(carry, key, get(this, key))
       }, {} as Partial<TForm>) as TForm
     },
     transform(callback) {
@@ -73,7 +71,7 @@ export default function useForm<TForm extends FormDataType>(
 
       return this
     },
-    defaults(fieldOrFields?: keyof TForm | Partial<TForm>, maybeValue?: FormDataConvertible) {
+    defaults(fieldOrFields?: FormDataKeys<TForm> | Partial<TForm>, maybeValue?: FormDataConvertible) {
       if (typeof data === 'function') {
         throw new Error('You cannot call `defaults()` when using a function to define your form data.')
       }
@@ -82,11 +80,10 @@ export default function useForm<TForm extends FormDataType>(
         defaults = this.data()
         this.isDirty = false
       } else {
-        defaults = Object.assign(
-          {},
-          cloneDeep(defaults),
-          typeof fieldOrFields === 'string' ? { [fieldOrFields]: maybeValue } : fieldOrFields,
-        )
+        defaults =
+          typeof fieldOrFields === 'string'
+            ? set(cloneDeep(defaults), fieldOrFields, maybeValue)
+            : Object.assign({}, cloneDeep(defaults), fieldOrFields)
       }
 
       return this
@@ -98,17 +95,17 @@ export default function useForm<TForm extends FormDataType>(
         defaults = clonedData
         Object.assign(this, resolvedData)
       } else {
-        Object.keys(resolvedData)
-          .filter((key) => fields.includes(key))
+        ;(fields as Array<FormDataKeys<TForm>>)
+          .filter((key) => has(clonedData, key))
           .forEach((key) => {
-            defaults[key] = clonedData[key]
-            this[key] = resolvedData[key]
+            set(defaults, key, get(clonedData, key))
+            set(this, key, get(resolvedData, key))
           })
       }
 
       return this
     },
-    setError(fieldOrFields: keyof TForm | Record<keyof TForm, string>, maybeValue?: string) {
+    setError(fieldOrFields: FormDataKeys<TForm> | Record<FormDataKeys<TForm>, string>, maybeValue?: string) {
       Object.assign(this.errors, typeof fieldOrFields === 'string' ? { [fieldOrFields]: maybeValue } : fieldOrFields)
 
       this.hasErrors = Object.keys(this.errors).length > 0

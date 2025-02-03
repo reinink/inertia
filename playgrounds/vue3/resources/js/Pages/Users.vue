@@ -22,7 +22,7 @@ defineProps({ users: Array, date: String })
     <span v-if="isPrefetching" class="text-red-500"> refreshing...</span>
   </div>
 
-  <div class="w-full max-w-2xl mt-6 overflow-hidden border rounded shadow-sm">
+  <div class="mt-6 w-full max-w-2xl overflow-hidden rounded border shadow-sm">
     <table class="w-full text-left">
       <thead>
         <tr>

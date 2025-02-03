@@ -14,13 +14,13 @@
 <h1 class="text-3xl">Home</h1>
 
 <div class="mt-6 space-y-4">
-    <div>
-        <a href="/article#far-down" use:inertia class="text-blue-700 underline">Link to bottom of article page</a>
-    </div>
+  <div>
+    <a href="/article#far-down" use:inertia class="text-blue-700 underline">Link to bottom of article page</a>
+  </div>
 
-    <div>
-        <button type="button" class="rounded-lg bg-blue-500 px-4 py-2 text-white" on:click={() => router.clearHistory()}>
-            Clear history
-        </button>
-    </div>
+  <div>
+    <button type="button" class="rounded-lg bg-blue-500 px-4 py-2 text-white" on:click={() => router.clearHistory()}>
+      Clear history
+    </button>
+  </div>
 </div>

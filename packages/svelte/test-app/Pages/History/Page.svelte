@@ -2,7 +2,7 @@
   import { inertia, router } from '@inertiajs/svelte'
 
   export let pageNumber
-    export let multiByte
+  export let multiByte
 </script>
 
 <a href="/history/1" use:inertia>Page 1</a>
@@ -14,4 +14,4 @@
 <button on:click={() => router.clearHistory()}>Clear History</button>
 
 <div>This is page {pageNumber}.</div>
-<div>Multi byte character: { multiByte }</div>
+<div>Multi byte character: {multiByte}</div>

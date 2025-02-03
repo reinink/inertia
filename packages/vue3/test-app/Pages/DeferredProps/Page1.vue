@@ -2,8 +2,8 @@
 import { Deferred, Link } from '@inertiajs/vue3'
 
 defineProps<{
-  foo?: {text: string }
-  bar?: {text: string }
+  foo?: { text: string }
+  bar?: { text: string }
 }>()
 </script>
 

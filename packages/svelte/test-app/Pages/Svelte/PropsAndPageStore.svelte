@@ -19,23 +19,11 @@
 </script>
 
 <div>
-  <input id="input" type="text" bind:value={$form.foo}>
+  <input id="input" type="text" bind:value={$form.foo} />
   <p>foo prop is {foo}</p>
   <p>$page.props.foo is {$page.props.foo}</p>
 
-  <a
-    href="/svelte/props-and-page-store"
-    use:inertia={{ data: { foo: 'bar' } }}
-  >
-    Bar
-  </a>
-  <a
-    href="/svelte/props-and-page-store"
-    use:inertia={{ data: { foo: 'baz' } }}
-  >
-    Baz
-  </a>
-  <a href="/" use:inertia>
-    Home
-  </a>
+  <a href="/svelte/props-and-page-store" use:inertia={{ data: { foo: 'bar' } }}> Bar </a>
+  <a href="/svelte/props-and-page-store" use:inertia={{ data: { foo: 'baz' } }}> Baz </a>
+  <a href="/" use:inertia> Home </a>
 </div>

@@ -11,6 +11,6 @@ createServer((page) =>
     },
     setup({ App, props }) {
       return render(App, { props })
-    }
+    },
   }),
 )

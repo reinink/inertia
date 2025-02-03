@@ -95,7 +95,7 @@ export default function useForm<TForm extends FormDataType>(
         defaults = clonedData
         Object.assign(this, resolvedData)
       } else {
-        (fields as Array<FormDataKeys<TForm>>)
+        ;(fields as Array<FormDataKeys<TForm>>)
           .filter((key) => has(clonedData, key))
           .forEach((key) => {
             set(defaults, key, get(clonedData, key))

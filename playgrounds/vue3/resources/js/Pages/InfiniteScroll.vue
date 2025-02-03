@@ -42,13 +42,13 @@ const setItemType = (type: string) => {
       v-for="type in item_types"
       @click="setItemType(type)"
       :key="type"
-      class="px-4 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+      class="rounded-lg bg-gray-200 px-4 py-1 hover:bg-gray-300"
     >
       {{ type }}
     </button>
   </div>
 
-  <div class="w-full max-w-2xl mt-6 overflow-hidden border rounded shadow-sm">
+  <div class="mt-6 w-full max-w-2xl overflow-hidden rounded border shadow-sm">
     <table class="w-full text-left">
       <thead>
         <tr>
@@ -64,7 +64,7 @@ const setItemType = (type: string) => {
       </tbody>
     </table>
 
-    <div v-if="!items" class="p-4 text-center bg-gray-100">Loading items...</div>
+    <div v-if="!items" class="bg-gray-100 p-4 text-center">Loading items...</div>
     <WhenVisible
       v-else
       :once="false"
@@ -79,10 +79,10 @@ const setItemType = (type: string) => {
       }"
     >
       <template #fallback>
-        <div class="p-4 text-center bg-gray-100">Fetching more items...</div>
+        <div class="bg-gray-100 p-4 text-center">Fetching more items...</div>
       </template>
 
-      <div class="p-4 text-center bg-gray-100">Fetching more items...</div>
+      <div class="bg-gray-100 p-4 text-center">Fetching more items...</div>
     </WhenVisible>
   </div>
 </template>

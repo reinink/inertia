@@ -1,5 +1,5 @@
 <script>
-  export let baz;
+  export let baz
 </script>
 
 <div>{baz}</div>

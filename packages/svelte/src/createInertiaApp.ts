@@ -48,7 +48,7 @@ export default async function createInertiaApp({
   const svelteApp = setup({
     el,
     App: App as unknown as AppComponent,
-    props
+    props,
   })
 
   if (isServer) {

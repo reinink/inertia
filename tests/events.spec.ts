@@ -409,7 +409,7 @@ test.describe('Events', () => {
 
       test('can delay onFinish from firing by returning a promise (link)', async ({ page }) => {
         test.skip(process.env.PACKAGE === 'svelte', 'Feature not supported by the Svelte adapter')
-          
+
         await page.getByRole('button', { exact: true, name: 'Error Event Link (delaying onFinish w/ Promise)' }).click()
 
         await page.waitForTimeout(25)

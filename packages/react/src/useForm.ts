@@ -1,5 +1,6 @@
 import { FormDataConvertible, Method, Progress, router, VisitOptions } from '@inertiajs/core'
 import isEqual from 'lodash.isequal'
+import cloneDeep from 'lodash.clonedeep'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useRemember from './useRemember'
 
@@ -111,6 +112,7 @@ export default function useForm<TForm extends FormDataType>(
             setHasErrors(false)
             setWasSuccessful(true)
             setRecentlySuccessful(true)
+            setDefaults(cloneDeep(data))
             recentlySuccessfulTimeoutId.current = setTimeout(() => {
               if (isMounted.current) {
                 setRecentlySuccessful(false)

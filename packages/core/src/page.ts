@@ -4,12 +4,12 @@ import { history } from './history'
 import { Scroll } from './scroll'
 import {
   Component,
+  CurrentPageInitParams,
   Page,
   PageEvent,
   PageHandler,
   PageResolver,
   PreserveStateOption,
-  RouterInitParams,
   VisitOptions,
 } from './types'
 import { hrefToUrl, isSameUrlWithoutHash } from './url'
@@ -26,7 +26,7 @@ class CurrentPage {
   protected isFirstPageLoad = true
   protected cleared = false
 
-  public init({ initialPage, swapComponent, resolveComponent }: RouterInitParams) {
+  public init({ initialPage, swapComponent, resolveComponent }: CurrentPageInitParams) {
     this.page = initialPage
     this.swapComponent = swapComponent
     this.resolveComponent = resolveComponent

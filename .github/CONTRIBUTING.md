@@ -64,7 +64,15 @@ php artisan inertia:start-ssr
 Inertia.js uses [Playwright](https://playwright.dev/) for testing. To run the tests, use the following command:
 
 ```sh
-cd tests && npx playwright test
+npx playwright install # install playwright with system-wide browser dependencies
+
+# install packages for the test app
+cd tests/app
+npm install
+
+# run tests
+cd ..
+npx playwright test
 ```
 
 ## Publishing

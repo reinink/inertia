@@ -5,6 +5,7 @@
   export interface InertiaAppProps {
     initialComponent: ResolvedComponent
     initialPage: Page
+    handleScroll: boolean
     resolveComponent: ComponentResolver
   }
 </script>
@@ -18,6 +19,7 @@
   export let initialComponent: InertiaAppProps['initialComponent']
   export let initialPage: InertiaAppProps['initialPage']
   export let resolveComponent: InertiaAppProps['resolveComponent']
+  export let handleScroll: InertiaAppProps['handleScroll']
 
   let component = initialComponent
   let key: number | null = null
@@ -32,6 +34,7 @@
     router.init({
       initialPage,
       resolveComponent,
+      handleScroll,
       swapComponent: async (args) => {
         component = args.component as ResolvedComponent
         page = args.page

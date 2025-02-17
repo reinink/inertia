@@ -10,6 +10,7 @@ export default function App({
   resolveComponent,
   titleCallback,
   onHeadUpdate,
+  handleScroll,
 }) {
   const [current, setCurrent] = useState({
     component: initialComponent || null,
@@ -29,6 +30,7 @@ export default function App({
     router.init({
       initialPage,
       resolveComponent,
+      handleScroll,
       swapComponent: async ({ component, page, preserveState }) => {
         setCurrent((current) => ({
           component,

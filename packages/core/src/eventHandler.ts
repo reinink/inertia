@@ -3,7 +3,7 @@ import { fireNavigateEvent } from './events'
 import { history } from './history'
 import { page as currentPage } from './page'
 import { Scroll } from './scroll'
-import { GlobalEvent, GlobalEventNames, GlobalEventResult, InternalEvent } from './types'
+import { EventHandlerInitParams, GlobalEvent, GlobalEventNames, GlobalEventResult, InternalEvent } from './types'
 import { hrefToUrl } from './url'
 
 class EventHandler {
@@ -12,13 +12,15 @@ class EventHandler {
     listener: VoidFunction
   }[] = []
 
-  public init() {
+  public init({ handleScroll }: EventHandlerInitParams) {
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', this.handlePopstateEvent.bind(this))
-      window.addEventListener('scroll', debounce(Scroll.onWindowScroll.bind(Scroll), 100), true)
+      if (handleScroll) {
+        window.addEventListener('scroll', debounce(Scroll.onWindowScroll.bind(Scroll), 100), true)
+      }
     }
 
-    if (typeof document !== 'undefined') {
+    if (typeof document !== 'undefined' && handleScroll) {
       document.addEventListener('scroll', debounce(Scroll.onScroll.bind(Scroll), 100), true)
     }
   }

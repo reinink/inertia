@@ -18,6 +18,7 @@ import useForm from './useForm'
 export interface InertiaAppProps {
   initialPage: Page
   initialComponent?: object
+  handleScroll?: boolean
   resolveComponent?: (name: string) => DefineComponent | Promise<DefineComponent>
   titleCallback?: (title: string) => string
   onHeadUpdate?: (elements: string[]) => void
@@ -57,7 +58,7 @@ const App: InertiaApp = defineComponent({
       default: () => () => {},
     },
   },
-  setup({ initialPage, initialComponent, resolveComponent, titleCallback, onHeadUpdate }) {
+  setup({ initialPage, initialComponent, resolveComponent, titleCallback, onHeadUpdate, handleScroll }) {
     component.value = initialComponent ? markRaw(initialComponent) : null
     page.value = initialPage
     key.value = null
@@ -69,6 +70,7 @@ const App: InertiaApp = defineComponent({
       router.init({
         initialPage,
         resolveComponent,
+        handleScroll,
         swapComponent: async (args: VuePageHandlerArgs) => {
           component.value = markRaw(args.component)
           page.value = args.page

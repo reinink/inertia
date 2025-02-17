@@ -43,7 +43,7 @@ export class Router {
     interruptible: false,
   })
 
-  public init({ initialPage, resolveComponent, swapComponent }: RouterInitParams): void {
+  public init({ initialPage, resolveComponent, swapComponent, handleScroll }: RouterInitParams): void {
     currentPage.init({
       initialPage,
       resolveComponent,
@@ -52,7 +52,7 @@ export class Router {
 
     InitialVisit.handle()
 
-    eventHandler.init()
+    eventHandler.init({ handleScroll })
 
     eventHandler.on('missingHistoryItem', () => {
       if (typeof window !== 'undefined') {
